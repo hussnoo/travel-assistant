@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Places API PoC</title>
+    <style>
+        body { font-family: sans-serif; }
+        #container { max-width: 800px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; }
+        #results { margin-top: 20px; }
+        .place { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .place h3 { margin: 0; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Google Places API Proof-of-Concept</h1>
+        <p>Enter a city name to find top-rated restaurants.</p>
+        <input type="text" id="city-input" placeholder="e.g., Jakarta">
+        <button id="search-btn">Search</button>
+        <div id="results"></div>
+    </div>
+
+    <!-- The Google Maps script needs to be loaded with your API key and the 'places' library -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+
+    <script>
+        document.getElementById('search-btn').addEventListener('click', function() {
+            const city = document.getElementById('city-input').value;
+            if (!city) {
+                alert('Please enter a city name.');
+                return;
+            }
+
+            const map = new google.maps.Map(document.createElement('div'));
+            const service = new google.maps.places.PlacesService(map);
+
+            const request = {
+                query: `restaurants in ${city}`,
+                fields: ['name', 'rating', 'formatted_address'],
+            };
+
+            service.textSearch(request, function(results, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '<h2>Top Restaurants:</h2>';
+                    for (let i = 0; i < results.length; i++) {
+                        const place = results[i];
+                        resultsDiv.innerHTML += `
+                            <div class="place">
+                                <h3>${place.name}</h3>
+                                <p>Rating: ${place.rating}</p>
+                                <p>Address: ${place.formatted_address}</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
