@@ -153,6 +153,30 @@
             background-color: #717171;
         }
 
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -22px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: 0.6s ease;
+            border-radius: 0 3px 3px 0;
+            user-select: none;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .prev:hover, .next:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
 
         #map {
             height: 400px;
@@ -189,10 +213,19 @@
                 <p><strong>Tujuan:</strong> <span id="summary-destination"></span></p>
                 <p><strong>Durasi:</strong> <span id="summary-duration"></span> Hari</p>
                 <p><strong>Estimasi Biaya:</strong> Rp <span id="summary-cost"></span></p>
+            <div class="cost-breakdown">
+                <h4>Alokasi Budget:</h4>
+                <p>Transportasi: Rp <span id="cost-transportation"></span></p>
+                <p>Akomodasi: Rp <span id="cost-accommodation"></span></p>
+                <p>Makan: Rp <span id="cost-meals"></span></p>
+                <p>Aktivitas: Rp <span id="cost-activities"></span></p>
+            </div>
             </div>
 
             <div class="slideshow-container">
                 <!-- Slides will be injected here by JavaScript -->
+            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+            <a class="next" onclick="plusSlides(1)">&#10095;</a>
             </div>
             <div class="dots">
                 <!-- Dots will be injected here -->
@@ -222,28 +255,83 @@
 
         let currentSlide = 0;
 
+        const dummyData = {
+            "bandung": {
+                coords: { lat: -6.9175, lng: 107.6191 },
+                attractions: [
+                    { name: "Kawah Putih", cost: 50000, description: "Danau kawah vulkanik yang menakjubkan.", location: { lat: -7.166, lng: 107.402 } },
+                    { name: "Farmhouse Lembang", cost: 30000, description: "Tempat wisata dengan konsep peternakan Eropa.", location: { lat: -6.832, lng: 107.609 } },
+                    { name: "Tangkuban Perahu", cost: 75000, description: "Gunung berapi aktif dengan pemandangan kawah yang indah.", location: { lat: -6.759, lng: 107.609 } }
+                ],
+                restaurants: [
+                    { name: "Warung Nasi Ibu Imas", cost: 50000, description: "Nasi timbel komplit yang legendaris.", location: { lat: -6.921, lng: 107.604 } },
+                    { name: "Seblak Sultan", cost: 30000, description: "Seblak dengan berbagai pilihan topping.", location: { lat: -6.888, lng: 107.615 } },
+                    { name: "Lereng Anteng Panoramic Coffee Place", cost: 60000, description: "Ngopi dengan pemandangan kota Bandung.", location: { lat: -6.838, lng: 107.62 } }
+                ]
+            },
+            "yogyakarta": {
+                coords: { lat: -7.7956, lng: 110.3695 },
+                attractions: [
+                    { name: "Candi Borobudur", cost: 350000, description: "Candi Buddha terbesar di dunia.", location: { lat: -7.607, lng: 110.203 } },
+                    { name: "Jalan Malioboro", cost: 0, description: "Pusat perbelanjaan dan oleh-oleh khas Yogyakarta.", location: { lat: -7.792, lng: 110.365 } },
+                    { name: "Prambanan", cost: 350000, description: "Kompleks candi Hindu yang megah.", location: { lat: -7.752, lng: 110.491 } }
+                ],
+                restaurants: [
+                    { name: "Gudeg Yu Djum", cost: 40000, description: "Gudeg legendaris di Yogyakarta.", location: { lat: -7.782, lng: 110.366 } },
+                    { name: "Sate Klathak Pak Pong", cost: 25000, description: "Sate kambing yang ditusuk dengan jeruji sepeda.", location: { lat: -7.89, lng: 110.39 } },
+                    { name: "Angkringan Lik Man", cost: 15000, description: "Angkringan pertama di Yogyakarta.", location: { lat: -7.79, lng: 110.36 } }
+                ]
+            }
+        };
+
         function generateItinerary(origin, destination, budget) {
-            // Dummy data generation logic
-            const duration = Math.max(2, Math.floor(budget / 500000));
-            const totalCost = budget * 0.9; // Simulate using 90% of budget
+            const dest = destination.toLowerCase();
+            const cityData = dummyData[dest];
+
+            if (!cityData) {
+                alert("Maaf, data untuk kota tujuan tersebut belum tersedia.");
+                return null;
+            }
+
+            const duration = Math.max(2, Math.floor(budget / 750000));
+            const totalCost = budget * 0.95;
 
             const costBreakdown = {
-                transportation: budget * 0.25,
+                transportation: budget * 0.3,
                 accommodation: budget * 0.4,
-                meals: budget * 0.15,
+                meals: budget * 0.2,
                 activities: budget * 0.1
             };
 
             const dailyPlan = [];
             for (let i = 1; i <= duration; i++) {
+                const activities = [];
+                activities.push({
+                    time: '09:00',
+                    activity: cityData.attractions[(i - 1) % cityData.attractions.length].name,
+                    description: cityData.attractions[(i - 1) % cityData.attractions.length].description,
+                    cost: cityData.attractions[(i - 1) % cityData.attractions.length].cost,
+                    location: cityData.attractions[(i - 1) % cityData.attractions.length].location
+                });
+                activities.push({
+                    time: '13:00',
+                    activity: `Makan siang di ${cityData.restaurants[(i - 1) % cityData.restaurants.length].name}`,
+                    description: cityData.restaurants[(i - 1) % cityData.restaurants.length].description,
+                    cost: cityData.restaurants[(i - 1) % cityData.restaurants.length].cost,
+                    location: cityData.restaurants[(i - 1) % cityData.restaurants.length].location
+                });
+                 activities.push({
+                    time: '15:00',
+                    activity: cityData.attractions[(i) % cityData.attractions.length].name,
+                    description: cityData.attractions[(i) % cityData.attractions.length].description,
+                    cost: cityData.attractions[(i) % cityData.attractions.length].cost,
+                    location: cityData.attractions[(i) % cityData.attractions.length].location
+                });
+
                 dailyPlan.push({
                     day: i,
-                    theme: `Day ${i} Theme`,
-                    activities: [
-                        { time: '09:00', activity: `Aktivitas Pagi Hari ${i}`, description: 'Deskripsi singkat aktivitas.', cost: 50000, location: { lat: -6.9022, lng: 107.6186 } },
-                        { time: '13:00', activity: `Makan Siang Hari ${i}`, description: 'Mencoba makanan khas lokal.', cost: 75000, location: { lat: -6.9175, lng: 107.6191 } },
-                        { time: '15:00', activity: `Aktivitas Sore Hari ${i}`, description: 'Jalan-jalan santai.', cost: 30000, location: { lat: -6.8915, lng: 107.6107 } }
-                    ]
+                    theme: `Menjelajahi ${destination}`,
+                    activities: activities
                 });
             }
 
@@ -254,7 +342,7 @@
                     total_estimated_cost: totalCost,
                     cost_breakdown: costBreakdown,
                     daily_plan: dailyPlan,
-                    destination_coords: { lat: -6.9175, lng: 107.6191 } // Example: Bandung
+                    destination_coords: cityData.coords
                 }
             };
         }
@@ -266,15 +354,22 @@
             document.getElementById('summary-duration').textContent = data.itinerary.duration_days;
             document.getElementById('summary-cost').textContent = data.itinerary.total_estimated_cost.toLocaleString('id-ID');
 
+            document.getElementById('cost-transportation').textContent = data.itinerary.cost_breakdown.transportation.toLocaleString('id-ID');
+            document.getElementById('cost-accommodation').textContent = data.itinerary.cost_breakdown.accommodation.toLocaleString('id-ID');
+            document.getElementById('cost-meals').textContent = data.itinerary.cost_breakdown.meals.toLocaleString('id-ID');
+            document.getElementById('cost-activities').textContent = data.itinerary.cost_breakdown.activities.toLocaleString('id-ID');
+
             const slideshowContainer = document.querySelector('.slideshow-container');
             const dotsContainer = document.querySelector('.dots');
-            slideshowContainer.innerHTML = '';
+            slideshowContainer.innerHTML = `
+                <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                <a class="next" onclick="plusSlides(1)">&#10095;</a>
+            `;
             dotsContainer.innerHTML = '';
 
             data.itinerary.daily_plan.forEach((day, index) => {
                 const slide = document.createElement('div');
                 slide.className = 'slide';
-                if (index === 0) slide.classList.add('active');
 
                 let activitiesHtml = `<h3>Hari ke-${day.day}</h3>`;
                 day.activities.forEach(act => {
@@ -294,21 +389,26 @@
 
                 const dot = document.createElement('span');
                 dot.className = 'dot';
-                dot.addEventListener('click', () => showSlide(index));
+                dot.addEventListener('click', () => currentSlide = index, showSlides());
                 dotsContainer.appendChild(dot);
             });
 
-            showSlide(0);
+            showSlides();
 
             setupMap(data.itinerary);
         }
 
-        function showSlide(n) {
+        function plusSlides(n) {
+            currentSlide += n;
+            showSlides();
+        }
+
+        function showSlides() {
             let i;
             let slides = document.getElementsByClassName("slide");
             let dots = document.getElementsByClassName("dot");
-            if (n >= slides.length) {currentSlide = 0}
-            if (n < 0) {currentSlide = slides.length - 1}
+            if (currentSlide >= slides.length) {currentSlide = 0}
+            if (currentSlide < 0) {currentSlide = slides.length - 1}
             for (i = 0; i < slides.length; i++) {
                 slides[i].style.display = "none";
             }
@@ -318,7 +418,6 @@
             slides[currentSlide].style.display = "block";
             dots[currentSlide].className += " active";
         }
-
 
         function getActivityIcon(activityName) {
             if (activityName.toLowerCase().includes('makan') || activityName.toLowerCase().includes('lunch') || activityName.toLowerCase().includes('dinner')) {
