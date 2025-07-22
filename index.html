@@ -307,6 +307,32 @@
                     { name: "Sop Konro Karebosi", cost: 45000, description: "Sop iga sapi khas Makassar.", location: { lat: -5.13, lng: 119.41 } },
                     { name: "Pallu Basa Serigala", cost: 30000, description: "Pallu basa dengan kuah kental dan rempah.", location: { lat: -5.15, lng: 119.43 } }
                 ]
+            },
+            "surabaya": {
+                coords: { lat: -7.2575, lng: 112.7521 },
+                attractions: [
+                    { name: "Monumen Kapal Selam", cost: 15000, description: "Monumen kapal selam asli.", location: { lat: -7.264, lng: 112.75 } },
+                    { name: "House of Sampoerna", cost: 0, description: "Museum tembakau dan sejarah Sampoerna.", location: { lat: -7.23, lng: 112.73 } },
+                    { name: "Jembatan Suramadu", cost: 0, description: "Jembatan tol yang menghubungkan Surabaya dan Madura.", location: { lat: -7.18, lng: 112.78 } }
+                ],
+                restaurants: [
+                    { name: "Sate Klopo Ondomohen", cost: 30000, description: "Sate daging dengan parutan kelapa.", location: { lat: -7.26, lng: 112.74 } },
+                    { name: "Lontong Balap Garuda Pak Gendut", cost: 20000, description: "Lontong balap legendaris di Surabaya.", location: { lat: -7.28, lng: 112.75 } },
+                    { name: "Rawon Setan", cost: 40000, description: "Rawon dengan kuah hitam yang khas.", location: { lat: -7.26, lng: 112.74 } }
+                ]
+            },
+            "tokyo": {
+                coords: { lat: 35.6895, lng: 139.6917 },
+                attractions: [
+                    { name: "Shibuya Crossing", cost: 0, description: "Persimpangan pejalan kaki tersibuk di dunia.", location: { lat: 35.659, lng: 139.700 } },
+                    { name: "Tokyo Skytree", cost: 210000, description: "Menara tertinggi di Jepang dengan pemandangan kota.", location: { lat: 35.71, lng: 139.81 } },
+                    { name: "Senso-ji Temple", cost: 0, description: "Kuil Buddha tertua di Tokyo.", location: { lat: 35.714, lng: 139.796 } }
+                ],
+                restaurants: [
+                    { name: "Ichiran Ramen", cost: 120000, description: "Ramen tonkotsu yang terkenal.", location: { lat: 35.658, lng: 139.701 } },
+                    { name: "Sushi Zanmai", cost: 300000, description: "Sushi segar dengan harga terjangkau.", location: { lat: 35.665, lng: 139.775 } },
+                    { name: "Tempura Abe", cost: 250000, description: "Tempura berkualitas tinggi di Ginza.", location: { lat: 35.67, lng: 139.76 } }
+                ]
             }
         };
 
@@ -415,26 +441,29 @@
 
                 const dot = document.createElement('span');
                 dot.className = 'dot';
-                dot.addEventListener('click', () => currentSlide = index, showSlides());
+                dot.addEventListener('click', () => currentDot(index));
                 dotsContainer.appendChild(dot);
             });
 
-            showSlides();
+            showSlides(currentSlide);
 
             setupMap(data.itinerary);
         }
 
         function plusSlides(n) {
-            currentSlide += n;
-            showSlides();
+            showSlides(currentSlide += n);
         }
 
-        function showSlides() {
+        function currentDot(n) {
+            showSlides(currentSlide = n);
+        }
+
+        function showSlides(n) {
             let i;
             let slides = document.getElementsByClassName("slide");
             let dots = document.getElementsByClassName("dot");
-            if (currentSlide >= slides.length) {currentSlide = 0}
-            if (currentSlide < 0) {currentSlide = slides.length - 1}
+            if (n >= slides.length) {currentSlide = 0}
+            if (n < 0) {currentSlide = slides.length - 1}
             for (i = 0; i < slides.length; i++) {
                 slides[i].style.display = "none";
             }
